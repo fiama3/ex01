@@ -33,4 +33,8 @@ public class StatisticsService {
 		return statisticsResponse;
 	}
 	
+	public List<DenormalizeRecordsResponseDTO> denormalize() throws Exception {
+		return statisticsDao.denormalize();
+	}
+	
 }

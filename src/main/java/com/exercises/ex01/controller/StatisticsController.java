@@ -2,7 +2,10 @@ package com.exercises.ex01.controller;
 
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.exercises.ex01.dto.DenormalizeRecordsResponseDTO;
 import com.exercises.ex01.dto.EAggregationType;
 import com.exercises.ex01.dto.GenericResponseDto;
 import com.exercises.ex01.service.StatisticsService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 
 @RestController
@@ -51,5 +58,26 @@ public class StatisticsController {
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	@GetMapping({"/denormalized/csv"})
+    public void getDenormalizedRecordsCsv(HttpServletResponse response) throws Exception{
+
+		String filename = "records.csv";
+
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + filename + "\"");
+
+        //create a csv writer
+        StatefulBeanToCsv<DenormalizeRecordsResponseDTO> writer = new StatefulBeanToCsvBuilder<DenormalizeRecordsResponseDTO>(response.getWriter())
+                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                .withOrderedResults(false)
+                .build();
+
+        //write all users to csv file
+        writer.write(statisticsService.denormalize());
+		
+    }
 }
 
