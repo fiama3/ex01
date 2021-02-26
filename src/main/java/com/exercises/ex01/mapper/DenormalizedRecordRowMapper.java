@@ -1,4 +1,4 @@
-package com.exercises.ex01.dao;
+package com.exercises.ex01.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

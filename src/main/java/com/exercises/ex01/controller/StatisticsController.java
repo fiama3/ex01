@@ -46,11 +46,12 @@ public class StatisticsController {
 	
 	@GetMapping({"/statistics"})
 	public ResponseEntity<?> getStatistics(
-			@RequestParam(required=true) EAggregationType aggregationType,
+			@RequestParam(required=true) String aggregationType,
 			@RequestParam(required=true) int aggregationValue) {
 		GenericResponseDto response = new GenericResponseDto();
 		try {
-			response.setData(statisticsService.getStatistics(aggregationType, aggregationValue));
+			EAggregationType aggregationTypeEnum = EAggregationType.valueOf(aggregationType);
+			response.setData(statisticsService.getStatistics(aggregationTypeEnum, aggregationValue));
 		} catch (Exception se) {
 			response.setError(HttpStatus.BAD_REQUEST.toString());
 			response.setMessage(se.getMessage());
@@ -68,14 +69,12 @@ public class StatisticsController {
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + filename + "\"");
 
-        //create a csv writer
         StatefulBeanToCsv<DenormalizeRecordsResponseDTO> writer = new StatefulBeanToCsvBuilder<DenormalizeRecordsResponseDTO>(response.getWriter())
                 .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                 .withOrderedResults(false)
                 .build();
 
-        //write all users to csv file
         writer.write(statisticsService.denormalize());
 		
     }
